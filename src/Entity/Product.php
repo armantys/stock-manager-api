@@ -33,12 +33,20 @@ class Product
     /**
      * @var Collection<int, Stock>
      */
-    #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'Product')]
+    #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'product')]
     private Collection $stocks;
+
+    /**
+     * @var Collection<int, StockMovement>
+     */
+    #[ORM\OneToMany(targetEntity: StockMovement::class, mappedBy: 'product')]
+    private Collection $stockMovements;
 
     public function __construct()
     {
         $this->stocks = new ArrayCollection();
+        $this->stockMovements = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -115,9 +123,37 @@ class Product
     public function removeStock(Stock $stock): static
     {
         if ($this->stocks->removeElement($stock)) {
-            // set the owning side to null (unless already changed)
             if ($stock->getProduct() === $this) {
                 $stock->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockMovement>
+     */
+    public function getStockMovements(): Collection
+    {
+        return $this->stockMovements;
+    }
+
+    public function addStockMovement(StockMovement $stockMovement): static
+    {
+        if (!$this->stockMovements->contains($stockMovement)) {
+            $this->stockMovements->add($stockMovement);
+            $stockMovement->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockMovement(StockMovement $stockMovement): static
+    {
+        if ($this->stockMovements->removeElement($stockMovement)) {
+            if ($stockMovement->getProduct() === $this) {
+                $stockMovement->setProduct(null);
             }
         }
 

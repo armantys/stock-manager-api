@@ -14,13 +14,15 @@ class Stock
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'stocks')]
-    private ?Product $Product = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Product $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'stocks')]
-    private ?Warehouse $Warehouse = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Warehouse $warehouse = null;
 
     #[ORM\Column]
-    private ?int $quantity = null;
+    private int $quantity = 0;
 
     public function getId(): ?int
     {
@@ -29,29 +31,27 @@ class Stock
 
     public function getProduct(): ?Product
     {
-        return $this->Product;
+        return $this->product;
     }
 
-    public function setProduct(?Product $Product): static
+    public function setProduct(?Product $product): static
     {
-        $this->Product = $Product;
-
+        $this->product = $product;
         return $this;
     }
 
     public function getWarehouse(): ?Warehouse
     {
-        return $this->Warehouse;
+        return $this->warehouse;
     }
 
-    public function setWarehouse(?Warehouse $Warehouse): static
+    public function setWarehouse(?Warehouse $warehouse): static
     {
-        $this->Warehouse = $Warehouse;
-
+        $this->warehouse = $warehouse;
         return $this;
     }
 
-    public function getQuantity(): ?int
+    public function getQuantity(): int
     {
         return $this->quantity;
     }
@@ -59,7 +59,16 @@ class Stock
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
-
         return $this;
+    }
+
+    public function increase(int $qty): void
+    {
+        $this->quantity += $qty;
+    }
+
+    public function decrease(int $qty): void
+    {
+        $this->quantity -= $qty;
     }
 }

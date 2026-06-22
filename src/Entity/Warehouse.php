@@ -2,11 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\WarehouseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource]
 #[ORM\Entity(repositoryClass: WarehouseRepository::class)]
 class Warehouse
 {
@@ -27,12 +29,20 @@ class Warehouse
     /**
      * @var Collection<int, Stock>
      */
-    #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'Warehouse')]
+    #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'warehouse')]
     private Collection $stocks;
+
+    /**
+     * @var Collection<int, StockMovement>
+     */
+    #[ORM\OneToMany(targetEntity: StockMovement::class, mappedBy: 'warehouse')]
+    private Collection $stockMovements;
 
     public function __construct()
     {
         $this->stocks = new ArrayCollection();
+        $this->stockMovements = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -100,6 +110,36 @@ class Warehouse
             // set the owning side to null (unless already changed)
             if ($stock->getWarehouse() === $this) {
                 $stock->setWarehouse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockMovement>
+     */
+    public function getStockMovements(): Collection
+    {
+        return $this->stockMovements;
+    }
+
+    public function addStockMovement(StockMovement $stockMovement): static
+    {
+        if (!$this->stockMovements->contains($stockMovement)) {
+            $this->stockMovements->add($stockMovement);
+            $stockMovement->setWarehouse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockMovement(StockMovement $stockMovement): static
+    {
+        if ($this->stockMovements->removeElement($stockMovement)) {
+            // set the owning side to null (unless already changed)
+            if ($stockMovement->getWarehouse() === $this) {
+                $stockMovement->setWarehouse(null);
             }
         }
 
